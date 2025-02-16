@@ -141,30 +141,39 @@ app.get("/tarjetas", (req, res) => {
 app.post("/tarjetas", (req, res) => {
   const { dmc, familia, linea } = req.body;
 
-  // Validación de campos obligatorios
   if (!dmc || !familia || !linea) {
     return res.status(400).send("Todos los campos son obligatorios.");
   }
 
-  db.run(
-    "INSERT INTO tarjetas (dmc, familia, linea) VALUES (?, ?, ?)",
-    [dmc, familia, linea],
-    (err) => {
-      if (err) {
-        console.error("Error al registrar tarjeta:", err.message);
-        return res.status(500).send(err.message);
-      }
-
-      // Si todo está bien, respuesta exitosa
-      registrarAuditoria("INSERT", "tarjetas", `Tarjeta ${dmc} registrada.`);
-      res.json({
-        message: "Tarjeta perfiladora registrada correctamente",
-        tarjetaId: this.lastID,  // Retorna el ID generado automáticamente
-      });
+  db.get("SELECT dmc FROM tarjetas WHERE dmc = ?", [dmc], (err, row) => {
+    if (err) {
+      console.error("Error al verificar tarjeta:", err.message);
+      return res.status(500).send("Error interno del servidor.");
     }
-  );
-});
 
+    if (row) {
+      return res.status(400).send("Error: La tarjeta ya está registrada.");
+    }
+
+    // Si no existe, la insertamos
+    db.run(
+      "INSERT INTO tarjetas (dmc, familia, linea) VALUES (?, ?, ?)",
+      [dmc, familia, linea],
+      function (err) {
+        if (err) {
+          console.error("Error al registrar tarjeta:", err.message);
+          return res.status(500).send("Error interno al registrar la tarjeta.");
+        }
+
+        registrarAuditoria("INSERT", "tarjetas", `Tarjeta ${dmc} registrada.`);
+        res.json({
+          message: "Tarjeta registrada correctamente",
+          tarjetaId: this.lastID, // Devuelve el ID generado
+        });
+      }
+    );
+  });
+});
 
 // Incrementar contador con validación y registrar historial
 app.post("/usar/:dmc", (req, res) => {

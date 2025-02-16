@@ -32,30 +32,41 @@ const BoardsPage = () => {
   const [familia, setFamilia] = useState('');
   const [linea, setLinea] = useState('');
   const [mensaje, setMensaje] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validaciones
-    if (!dmc || !familia || !linea) {
-      setMensaje('Por favor, completa todos los campos.');
+    // Validaciones previas
+    if (!dmc.trim() || !familia || !linea) {
+      setError('Por favor, completa todos los campos.');
       return;
     }
 
     setLoading(true);
-    const tarjetaData = { dmc, familia, linea };
+    setMensaje('');
+    setError('');
+
+    const tarjetaData = { dmc: dmc.trim().toUpperCase(), familia, linea };
 
     try {
       const response = await axios.post('http://localhost:5000/tarjetas', tarjetaData);
 
-      if (response.data === "Tarjeta perfiladora registrada correctamente") {
-        setMensaje('Tarjeta registrada correctamente');
-      } else {
-        setMensaje('Error al registrar la tarjeta');
-      }
+      setMensaje(response.data.message || 'Tarjeta registrada correctamente');
+      setDmc('');
+      setFamilia('');
+      setLinea('');
     } catch (error) {
-      setMensaje('Hubo un error al registrar la tarjeta');
+      if (error.response) {
+        if (error.response.status === 400 && error.response.data.includes('UNIQUE constraint failed')) {
+          setError('El DMC ya está registrado.');
+        } else {
+          setError(error.response.data || 'Error al registrar la tarjeta.');
+        }
+      } else {
+        setError('Hubo un problema con la conexión al servidor.');
+      }
     } finally {
       setLoading(false);
     }
@@ -95,7 +106,7 @@ const BoardsPage = () => {
           </select>
         </div>
 
-        {/* Campo Linea */}
+        {/* Campo Línea */}
         <div className="mb-4">
           <label htmlFor="linea" className="block text-sm font-medium text-gray-700">Línea</label>
           <select
@@ -122,9 +133,8 @@ const BoardsPage = () => {
       </form>
 
       {/* Mensajes de error o éxito */}
-      {mensaje && (
-        <p className="mt-4 text-center text-sm text-green-600">{mensaje}</p>
-      )}
+      {mensaje && <p className="mt-4 text-center text-sm text-green-600">{mensaje}</p>}
+      {error && <p className="mt-4 text-center text-sm text-red-600">{error}</p>}
     </div>
   );
 };
