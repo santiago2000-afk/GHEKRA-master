@@ -51,7 +51,7 @@ const BoardsPage = () => {
     const tarjetaData = { dmc: dmc.trim().toUpperCase(), familia, linea };
 
     try {
-      const response = await axios.post('http://localhost:5000/tarjetas', tarjetaData);
+      const response = await axios.post('http://localhost:3000/tarjetas', tarjetaData);
 
       setMensaje(response.data.message || 'Tarjeta registrada correctamente');
       setDmc('');
@@ -73,7 +73,7 @@ const BoardsPage = () => {
   };
 
   return (
-    <div className="max-w-sm mx-auto p-6 border border-gray-300 rounded-lg shadow-md bg-white">
+    <div className="max-w-sm mx-auto p-6 border border-gray-300 rounded-lg shadow-md bg-white my-4">
       <h2 className="text-2xl font-semibold text-center mb-6">Registrar Tarjeta</h2>
       <form onSubmit={handleSubmit}>
         {/* Campo DMC */}

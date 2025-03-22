@@ -6,22 +6,38 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "dist-electron/main.js",
+  "main": "main.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
+    "build": "vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron": "electron .",
+    "dist": "npm run build && electron-builder",
+    "start": "electron .",
+    "electron-build": "electron-builder"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^6.4.4",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
+    "chart.js": "^4.4.7",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "electron-packager": "^17.1.2",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "next-auth": "^4.24.11",
     "react": "^18.2.0",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.2.0",
+    "react-modal": "^3.16.3",
     "react-router-dom": "^6.28.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "5.1.6",
+    "styled-components": "^6.1.15"
   },
   "devDependencies": {
     "@types/react": "^18.2.64",
@@ -30,7 +46,7 @@
     "@typescript-eslint/parser": "^7.1.1",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.20",
-    "electron": "^30.0.1",
+    "electron": "^30.5.1",
     "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -41,5 +57,23 @@
     "vite": "^5.1.6",
     "vite-plugin-electron": "^0.28.6",
     "vite-plugin-electron-renderer": "^0.14.5"
+  },
+  "build": {
+    "appId": "com.miapp.electron",
+    "productName": "MiApp",
+    "files": [
+      "build/**/*",
+      "main.js"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "bin": {
+    "app": "server.js"
   }
 }
